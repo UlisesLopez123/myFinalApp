@@ -1,0 +1,44 @@
+name: Pipeline Final - Ulises
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: self-hosted
+    env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        IMAGE_NAME: ${{ vars.IMAGE_NAME }}
+        IMAGE_TAG: ${{ vars.IMAGE_TAG }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Login to DockerHub
+        run: |
+          echo $DOCKERHUB_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin
+
+      - name: Build Docker image
+        run: docker build -t $DOCKERHUB_USERNAME/$IMAGE_NAME:$IMAGE_TAG ./node-app
+
+      - name: Push image to DockerHub
+        run: docker push $DOCKERHUB_USERNAME/$IMAGE_NAME:$IMAGE_TAG
+
+      - name: Run container
+        run: docker run -d -p 8080:8080 --name final-node $DOCKERHUB_USERNAME/$IMAGE_NAME:$IMAGE_TAG
+
+      - name: Wait for container
+        run: sleep 5
+
+      - name: Test container with curl
+        run: |
+          curl http://localhost:8080
+
+      - name: Stop and remove container
+        run: |
+          docker stop ci-app
+          docker rm ci-app

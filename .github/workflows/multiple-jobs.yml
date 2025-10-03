@@ -47,9 +47,9 @@ jobs:
           Write-Host "Full response:"
           Write-Host $response
           if ($response.Content -eq "Hello, CI Pipeline!") {
-              Write-Host "✅ Test passed"
+              Write-Host "Test passed"
           } else {
-              Write-Host "❌ Test failed"
+              Write-Host "Test failed"
               exit 1
           }
 

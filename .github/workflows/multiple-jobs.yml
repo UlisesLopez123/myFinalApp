@@ -53,6 +53,15 @@ jobs:
               exit 1
           }
 
+      - name: Save container logs
+        run: docker logs final-node > container.log
+
+      - name: Upload logs as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: final-node-logs
+          path: container.log
+
       - name: Stop and remove container
         run: |
           docker stop final-node

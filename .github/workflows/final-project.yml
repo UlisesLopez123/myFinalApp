@@ -8,12 +8,7 @@ on:
 jobs:
   build-and-test:
     runs-on: self-hosted
-    env:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-      IMAGE_NAME: ${{ vars.IMAGE_NAME }}
-      IMAGE_TAG: ${{ vars.IMAGE_TAG }}
-
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -25,13 +20,13 @@ jobs:
           password: ${{ env.DOCKERHUB_TOKEN }}
 
       - name: Build Docker image
-        run: docker build -t "${env.DOCKERHUB_USERNAME}/${env.IMAGE_NAME}:${env.IMAGE_TAG}" ./node-app
+        run: docker build -t "${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMAGE_NAME }}:${{ vars.IMAGE_TAG }}" ./node-app
 
       - name: Push image to DockerHub
-        run: docker push "${env.DOCKERHUB_USERNAME}/${env.IMAGE_NAME}:${env.IMAGE_TAG}"
+        run: docker push "${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMAGE_NAME }}:${{ vars.IMAGE_TAG }}"
 
       - name: Run container
-        run: docker run -d -p 8080:8080 --name final-node "${env.DOCKERHUB_USERNAME}/${env.IMAGE_NAME}:${env.IMAGE_TAG}"
+        run: docker run -d -p 8080:8080 --name final-node "${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.IMAGE_NAME }}:${{ vars.IMAGE_TAG }}"
 
       - name: Wait for container
         run: sleep 5
